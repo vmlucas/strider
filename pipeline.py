@@ -2,12 +2,12 @@ import pandas as pd
 import json
 import psycopg2
 from function import loadInternalData,loadExternalData
-from reviews import loadReviews
+from reviews import loadReviewData
 
 #loading internal data
-#loadInternalData()
+loadInternalData()
 
 #loading external data
-#loadExternalData()
-loadReviews()
+loadExternalData()
+loadReviewData()
 

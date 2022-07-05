@@ -5,7 +5,8 @@ import psycopg2
 from sqlalchemy import create_engine
 import numpy
 from psycopg2.extensions import register_adapter, AsIs
-import datetime 
+import shutil
+import os.path
 
 def addapt_numpy_float64(numpy_float64):
     return AsIs(numpy_float64)
@@ -19,25 +20,48 @@ def getEngine():
     engine = create_engine('postgresql+psycopg2://postgres:vsvLL430@localhost/postgres')
     return engine
 
-#load internal data fazer parte q verifica arquivo na pasta, e copia para outra ao carregar
+#all funtions verify if the file exists and move to the loaded dir after loading...
+#load internal data 
 def loadInternalData():
-    loadUsers()
-    loadMovies()
-    loadStreams()
+    userFile = './to_load/users.csv'
+    movieFile = './to_load/movies.csv'
+    streamFile = './to_load/streams.csv'
+
+    if(os.path.exists(userFile)):
+        loadUsers(userFile)
+        shutil.move(userFile, "./loaded/users.csv")
+
+    if(os.path.exists(movieFile)):    
+        loadMovies(movieFile)
+        shutil.move(movieFile, "./loaded/movies.csv")
+
+    if(os.path.exists(streamFile)):    
+        loadStreams(streamFile)
+        shutil.move(streamFile, "./loaded/streams.csv")
 
 #load external data
 def loadExternalData():
-    loadAuthors()
-    loadBooks()
+    bookFile = './to_load/books.json'
+    authFile = './to_load/authors.json'
+
+    if(os.path.exists(authFile)):
+        loadAuthors(authFile)
+        shutil.move(authFile, "./loaded/authors.json")
+
+    if(os.path.exists(bookFile)):    
+        loadBooks(bookFile)
+        shutil.move(bookFile, "./loaded/books.json")
+    
+    
     
 #load books
-def loadBooks():
+def loadBooks(file):
     engine = getEngine()
     conn = engine.connect()
     trans = conn.begin()
 
     print('loading books...')
-    booksDF = pd.read_json('./to_load/books.json')
+    booksDF = pd.read_json(file)
     booksDF.to_sql(name='books_tmp',con=engine,schema='strider', if_exists='replace',index=False)
     engine.execute('CREATE TABLE IF NOT EXISTS \
                    strider.books(name text PRIMARY KEY, pages int, author text, publisher text )')
@@ -57,7 +81,7 @@ def loadBooks():
         engine.dispose()
 
 #load Authors
-def loadAuthors():
+def loadAuthors(file):
     engine = getEngine()
     conn = engine.connect()
     trans = conn.begin()
@@ -69,7 +93,7 @@ def loadAuthors():
                    strider.nationalities(id text,label text, slug text, author text,\
                     FOREIGN KEY (author) REFERENCES strider.authors(name))')               
     
-    autsDF = pd.read_json('./to_load/authors.json')
+    autsDF = pd.read_json(file)
     for index,row in autsDF.iterrows():
             autDF = pd.json_normalize(autsDF['metadata'][index])
             if(pd.notnull(autDF['name']).any()):
@@ -105,11 +129,11 @@ def loadAuthors():
 
 
 #loading users
-def loadUsers():
+def loadUsers(file):
     engine = getEngine()
        
     print('loading users...')
-    usersDF = pd.read_csv('./to_load/users.csv')
+    usersDF = pd.read_csv(file)
     usersDF.to_sql(name='users',con=engine,schema='strider', if_exists='replace',index=False)
     
     #ADD PRIMARY KEY
@@ -120,11 +144,11 @@ def loadUsers():
 
 
 #loading movies
-def loadMovies():
+def loadMovies(file):
     engine = getEngine()
     
     print('loading movies...')
-    moviesDF = pd.read_csv('./to_load/movies.csv')
+    moviesDF = pd.read_csv(file)
     moviesDF.to_sql(name='movies',con=engine,schema='strider', if_exists='replace',index=False)
     
     #ADD PRIMARY KEY
@@ -135,11 +159,11 @@ def loadMovies():
 
 
 #loading streaming    
-def loadStreams():
+def loadStreams(file):
     engine = getEngine()
     
     print('loading streamings...')
-    moviesDF = pd.read_csv('./to_load/streams.csv')
+    moviesDF = pd.read_csv(file)
     moviesDF.to_sql(name='streams',con=engine,schema='strider', if_exists='append',index=False)
     
     #ADD PRIMARY KEY
