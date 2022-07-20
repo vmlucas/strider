@@ -18,7 +18,7 @@ register_adapter(numpy.int64, addapt_numpy_int64)
 #connect to the PostgreSQL on localhost
 def getEngine():
     engine = create_engine('postgresql+psycopg2://postgres:vsvLL430@localhost/postgres')
-    return engine
+    return engine     
 
 #all funtions verify if the file exists and move to the loaded dir after loading...
 #load internal data 
