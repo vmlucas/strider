@@ -15,7 +15,7 @@ def addapt_numpy_int64(numpy_int64):
 register_adapter(numpy.float64, addapt_numpy_float64)
 register_adapter(numpy.int64, addapt_numpy_int64)
 
-#connect to the PostgreSQL on Heroku
+#connect to the PostgreSQL on localhost
 def getEngine():
     engine = create_engine('postgresql+psycopg2://postgres:vsvLL430@localhost/postgres')
     return engine
@@ -30,14 +30,20 @@ def loadInternalData():
     if(os.path.exists(userFile)):
         loadUsers(userFile)
         shutil.move(userFile, "./loaded/users.csv")
+    else:
+        print('File users.csv is not on the folder ./to_load')
 
     if(os.path.exists(movieFile)):    
         loadMovies(movieFile)
         shutil.move(movieFile, "./loaded/movies.csv")
+    else:
+        print('File movies.csv is not on the folder ./to_load')
 
     if(os.path.exists(streamFile)):    
         loadStreams(streamFile)
         shutil.move(streamFile, "./loaded/streams.csv")
+    else:
+        print('File streams.csv is not on the folder ./to_load')
 
 #load external data
 def loadExternalData():
@@ -47,10 +53,14 @@ def loadExternalData():
     if(os.path.exists(authFile)):
         loadAuthors(authFile)
         shutil.move(authFile, "./loaded/authors.json")
+    else:
+        print('File authors.csv is not on the folder ./to_load')
 
     if(os.path.exists(bookFile)):    
         loadBooks(bookFile)
         shutil.move(bookFile, "./loaded/books.json")
+    else:
+        print('File books.csv is not on the folder ./to_load')
     
     
     
