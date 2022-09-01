@@ -7,6 +7,13 @@ import numpy
 from psycopg2.extensions import register_adapter, AsIs
 import shutil
 import os.path
+import os
+from dotenv import load_dotenv
+
+load_dotenv("./vars/.env")
+db_user = os.getenv('db_user')
+db_pass = os.getenv('db_pass')
+db_name = os.getenv('db_name')
 
 def addapt_numpy_float64(numpy_float64):
     return AsIs(numpy_float64)
@@ -17,7 +24,7 @@ register_adapter(numpy.int64, addapt_numpy_int64)
 
 #connect to the PostgreSQL on localhost
 def getEngine():
-    engine = create_engine('postgresql+psycopg2://postgres:vsvLL430@localhost/postgres')
+    engine = create_engine('postgresql+psycopg2://'+db_user+':'+db_pass+'@localhost/'+db_name)
     return engine     
 
 #all funtions verify if the file exists and move to the loaded dir after loading...
