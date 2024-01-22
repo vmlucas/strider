@@ -1,0 +1,49 @@
+In **as much detail as time provides**, describe how you would build this pipeline if you had more time for the test and planned to ship it in a production environment.
+
+You should:
+
+- Explain which technologies you would use (programming languages, frameworks, database, and pipeline) and **why** for each one
+- Share a detailed architecture diagram
+- Write down your reasoning process for the designed architecture, making sure you cover in detail the components and how they interact with each other.
+- **Be thorough!**
+
+Assumptions:
+
+- You have about 8 GB of data coming every day
+- Data needs to be moved through the pipeline and ready in the production database in less than one hour
+- The vendor data is made available through File Transfer Protocol (FTP) and gets updated every night (2 am)
+- Vendor data is always their whole dataset. Unfortunately, they can't publish updates only.
+- The load process must be incremental given the vendor can delete data we want to retain
+
+
+solution:
+- As the amount of data is about 8 GB and coming every day, I would use an big cloud environment ( Hadoop ) and based on the large files and the time ( less than one hour). I would prepare a spark environment that we can use the context and yuarn priorities that runs many steps on memory and distribuited. Haddop also works with clusters in order to distribute the load.
+- I´d use a work flow such as airflow or GCP dataproc, were I can develop the scripts using pyspark
+
+the process ( using GCP Dataproc)      
+- at 2am: start the pipeline script that runs few steps:
+          step 1: shell connect to the FTP server and get the file to our main cluster
+          Our main cluster has the hadoop environment with hive and spark, spark context configured and yarn running
+          step2: pyspark script:
+                 acess to the spark session already created on the environment
+                 hive variable and sql variable have also been configured
+                 create variable for the stageTable (st)
+                 create variable for the finalTable (ft)
+                 load st on a spark dataframe (stDF), depending the amount of files and types. We can retrieve some data from hive  
+                 set current timestamp on stDF
+                 make some adjustments on stDF depending on the file received, we can drop null rows, replace NAN fields...
+                 stDF.write.partition('particion_name').mode('append').insertInto(ft) 
+
+
+         step3:based on the process written on step2, we can divide the process into diffent scripts and priorities on yarn. Each one can load diffent parts of the data. Different table partitions
+
+         step4: at the end, we have scripts with dataFrames with parts of the initial data, and all write on different partitions
+                stDF.write.partition('particion_name').mode('append').insertInto(ft) 
+
+
+
+
+
+
+
+
