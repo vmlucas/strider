@@ -11,10 +11,10 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv('../Auth-keys/.env')
-
 db_user = os.getenv('db_user_postgres')
 db_pass = os.getenv('db_pass_postgres')
 db_name = os.getenv('db_name_postgres')
+
 
 def addapt_numpy_float64(numpy_float64):
     return AsIs(numpy_float64)
